@@ -8,7 +8,7 @@ from .services.sessions import SessionService
 
 class UlaiClient:
     def __init__(self, base_url: Optional[str] = None, api_key: Optional[str] = None):
-        self.base_url = (base_url or os.getenv("ULAI_API_URL", "https://api.ulai.co.in")).rstrip("/")
+        self.base_url = (base_url or os.getenv("ULAI_API_URL", "https://console.ulai.co.in")).rstrip("/")
         self.api_key = api_key or os.getenv("ULAI_API_KEY")
         
         if not self.api_key:
