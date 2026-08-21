@@ -1,0 +1,9 @@
+[project]
+name = "ulai-api"
+version = "0.1.0"
+description = "Python Server API for Ulai Cloud"
+requires-python = ">=3.9"
+dependencies = [
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0"
+]
