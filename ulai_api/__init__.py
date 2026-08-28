@@ -11,6 +11,11 @@ from .models.dispatch import (
     RuleType,
     CreateDispatcherRuleRequest,
 )
+from .models.sessions import (
+    Session,
+    JoinInfo,
+    NodeInfo,
+)
 
 __all__ = [
     "UlaiClient",
@@ -22,4 +27,7 @@ __all__ = [
     "DispatcherRule",
     "RuleType",
     "CreateDispatcherRuleRequest",
+    "Session",
+    "JoinInfo",
+    "NodeInfo",
 ]

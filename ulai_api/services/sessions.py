@@ -1,6 +1,6 @@
 import httpx
 from typing import Dict, Optional
-from ..models import Session, JoinInfo
+from ..models.sessions import Session, JoinInfo
 
 class SessionService:
     def __init__(self, client: httpx.AsyncClient):
