@@ -60,6 +60,7 @@ class DispatchService:
         agent_name: Optional[str] = None,
         trunk_ids: Optional[List[str]] = None,
         phone_numbers: Optional[List[str]] = None,
+        dispatch_metadata: Optional[Dict[str, Any]] = None,
     ) -> DispatcherRule:
         """Updates an existing dispatcher rule dynamically."""
         
@@ -69,6 +70,7 @@ class DispatchService:
                 "agent_name": agent_name,
                 "trunk_ids": trunk_ids,
                 "phone_numbers": phone_numbers,
+                "dispatch_metadata":dispatch_metadata,
             }.items() if v is not None
         }
 
