@@ -168,3 +168,38 @@ class SIPService:
             f"/api/v1/projects/{self._project_id}/sip-outbound-trunks/{trunk_id}"
         )
         resp.raise_for_status()
+
+    async def originate_call(
+        self,
+        to_number: str,
+        trunk_id: str,
+        project_id: str,
+        from_number: str,
+        name: str,
+        offer_srtp: bool,
+        require_srtp: bool,
+        dial_verbatim: bool,
+        session_id: str,
+    ) -> None:
+        """Originates an outbound SIP call using the dedicated SIP module."""
+        # Using the Pydantic model to ensure strict validation of required fields
+        from ..models.sip import OriginateCallRequest 
+        
+        payload = OriginateCallRequest(
+            to_number=to_number,
+            trunk_id=trunk_id,
+            project_id=project_id,
+            from_number=from_number,
+            name=name,
+            offer_srtp=offer_srtp,
+            require_srtp=require_srtp,
+            dial_verbatim=dial_verbatim,
+            session_id=session_id,
+        ).model_dump()
+
+        # Using the absolute URL bypasses the client's default base_url
+        resp = await self._client.post(
+            "http://148.113.59.189:8082/sip/originate",
+            json=payload,
+        )
+        resp.raise_for_status()    

@@ -1,0 +1,2 @@
+# Ignore proto files as they are compiled to python code
+ulai_api/proto/agent-session.proto

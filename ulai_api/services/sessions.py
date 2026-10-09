@@ -1,6 +1,6 @@
 import httpx
 from typing import Dict, Optional
-from ..models.sessions import Session, JoinInfo
+from ..models.sessions import Session, JoinInfo, ParticipantKind, SIPDirection
 
 class SessionService:
     def __init__(self, client: httpx.AsyncClient):
@@ -22,11 +22,38 @@ class SessionService:
         resp.raise_for_status()
         return Session(**resp.json())
 
-    async def join(self, session_id: str, participant_id: str = "", metadata: Optional[Dict[str, str]] = None) -> JoinInfo:
+    async def join(
+        self, 
+        session_id: str, 
+        participant_id: str = "", 
+        kind: Optional[ParticipantKind] = None,
+        sub_kind: Optional[str] = None,
+        sip_direction: Optional[SIPDirection] = None,
+        can_publish: Optional[bool] = None,
+        can_subscribe: Optional[bool] = None,
+        metadata: Optional[Dict[str, str]] = None
+    ) -> JoinInfo:
         """Joins an existing session and returns connection tickets."""
+        
+        # SIP EXCLUSIVITY LOGIC
+        if kind == ParticipantKind.SIP and not sip_direction:
+            raise ValueError("sip_direction is strictly required when kind is SIP")
+        if kind != ParticipantKind.SIP and sip_direction:
+            raise ValueError("sip_direction can only be provided when kind is SIP")
+
         payload = {}
         if participant_id:
             payload["participant_id"] = participant_id
+        if kind is not None:
+            payload["kind"] = kind.value
+        if sub_kind is not None:
+            payload["sub_kind"] = sub_kind
+        if sip_direction is not None:
+            payload["sip_direction"] = sip_direction.value
+        if can_publish is not None:
+            payload["can_publish"] = can_publish
+        if can_subscribe is not None:
+            payload["can_subscribe"] = can_subscribe
         if metadata:
             payload["metadata"] = metadata
             

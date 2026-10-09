@@ -46,3 +46,14 @@ class CreateOutboundTrunkRequest(BaseModel):
     transport: SIPTransport = SIPTransport.AUTO
     username: Optional[str] = None
     password: Optional[str] = None
+
+class OriginateCallRequest(BaseModel):
+    to_number: str
+    trunk_id: str
+    project_id: str
+    from_number: str
+    name: str
+    offer_srtp: bool
+    require_srtp: bool
+    dial_verbatim: bool
+    session_id: str

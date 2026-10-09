@@ -1,7 +1,19 @@
 from datetime import datetime
 from typing import Dict, Optional
 from pydantic import BaseModel, ConfigDict
+from enum import Enum
 
+
+class ParticipantKind(str, Enum):
+    STANDARD = "STANDARD"
+    AGENT = "AGENT"
+    SIP = "SIP"
+    TRANSCRIBER = "TRANSCRIBER"
+    RECORDER = "RECORDER"
+
+class SIPDirection(str, Enum):
+    INBOUND = "INBOUND"
+    OUTBOUND = "OUTBOUND"
 
 class NodeInfo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -15,8 +27,10 @@ class JoinInfo(BaseModel):
     participant_id: str
     connection_id: str
     ticket: str
-    events_token: Optional[str] = None
     node: NodeInfo
+    webrtc_url: Optional[str] = None
+    ws_url: Optional[str] = None
+    events_token: Optional[str] = None
 
 
 class Session(BaseModel):
