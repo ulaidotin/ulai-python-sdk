@@ -51,20 +51,37 @@ class AgentService:
             metadata = (("x-api-key", self.api_key),)
         return metadata
 
-    async def join_bridge(self, room: str, agent_id: str, participant_id: str):
+    async def join_bridge(self, room: str, agent_id: str, participant_id: str, profile: Optional[dict] = None, opening: Optional[dict] = None, custom_fields: Optional[dict] = None):
         """
         Client.Join returning a Seat
         """
         if not self.bridge_stub:
             raise NotImplementedError("gRPC stubs not found. Please compile agent-session.proto.")
             
+        import json
+        
         req = agent_session_pb2.JoinBridgeRequest(
             bridge_id=room,
             agent_id=agent_id,
             participant_id=participant_id,
             control_plane_url=self.control_plane_url,
-            control_plane_api_key=self.api_key or ""
+            control_plane_api_key=self.api_key or "",
         )
+        
+        if custom_fields:
+            req.custom_fields_json = json.dumps(custom_fields)
+            
+        if profile:
+            # Assuming profile is a dict that maps to the Profile message fields
+            req.profile.prompt = profile.get("prompt", "")
+            req.profile.greeting = profile.get("greeting", "")
+            req.profile.gemini_project_id = profile.get("gemini_project_id", "")
+            req.profile.google_credentials_json = profile.get("google_credentials_json", "")
+            
+        if opening:
+            req.opening.say = opening.get("say", "")
+            req.opening.reply = opening.get("reply", "")
+            
         return await self.bridge_stub.Join(req, metadata=self._get_metadata())
 
     async def leave_bridge(self, room: str, participant_id: str):
