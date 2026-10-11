@@ -16,6 +16,8 @@ from .models.sessions import (
     JoinInfo,
     NodeInfo,
 )
+from .services.agent import AgentService, Seat
+from .proto import agent_session_pb2, agent_session_pb2_grpc
 
 __all__ = [
     "UlaiClient",
@@ -30,4 +32,8 @@ __all__ = [
     "Session",
     "JoinInfo",
     "NodeInfo",
+    "AgentService",
+    "Seat",
+    "agent_session_pb2",
+    "agent_session_pb2_grpc",
 ]

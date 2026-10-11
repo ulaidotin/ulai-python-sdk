@@ -1,2 +1,9 @@
 # Ignore proto files as they are compiled to python code
 ulai_api/proto/agent-session.proto
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/

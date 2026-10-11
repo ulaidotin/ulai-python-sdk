@@ -5,7 +5,7 @@ import warnings
 
 from ulai_api.proto import agent_session_pb2 as ulai__api_dot_proto_dot_agent__session__pb2
 
-GRPC_GENERATED_VERSION = '1.80.0'
+GRPC_GENERATED_VERSION = '1.78.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
