@@ -1,6 +1,6 @@
 import os
 import httpx
-from typing import Optional
+from typing import Optional, Any
 
 from .services.sip import SIPService
 from .services.dispatch import DispatchService
@@ -53,6 +53,19 @@ class UlaiClient:
         
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def aclose(self) -> None:
+        """Close underlying HTTP clients."""
         await self._backend_client.aclose()
         await self._cp_client.aclose()
+
+    async def close(self) -> None:
+        """Close underlying HTTP clients."""
+        await self.aclose()
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[type] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional[Any] = None
+    ) -> None:
+        await self.aclose()
