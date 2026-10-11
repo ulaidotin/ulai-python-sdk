@@ -18,3 +18,6 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["ulai_api*"]
+
+[tool.setuptools.package-data]
+ulai_api = ["py.typed", "*.pyi", "**/*.pyi"]
