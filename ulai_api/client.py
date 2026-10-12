@@ -13,6 +13,7 @@ class UlaiClient:
         control_plane_url: Optional[str] = None,
         agent_url: Optional[str] = None,
         api_key: Optional[str] = None,
+        agent_api_key: Optional[str] = None,
         system_secret: Optional[str] = None
     ):
         self.backend_url = (backend_url or os.getenv("ULAI_API_URL", "https://backend.ulai.co.in")).rstrip("/")
@@ -22,9 +23,15 @@ class UlaiClient:
             or os.getenv("ULAI_AGENT_URL")
             or os.getenv("ULAI_CLOUD_AGENT_URL")
             or os.getenv("ULAI_AGENT_ADDR")
-            or "https://stgags.ulai.co:50052"
+            or "https://stgags.ulai.co"
         ).rstrip("/")
         self.api_key = api_key or os.getenv("ULAI_API_KEY")
+        self.agent_api_key = (
+            agent_api_key
+            or os.getenv("ULAI_CLOUD_AGENT_API_KEY")
+            or os.getenv("ULAI_AGENT_API_KEY")
+            or self.api_key
+        )
         self.system_secret = system_secret or os.getenv("ULAI_SYSTEM_SECRET")
         
         if not self.api_key and not self.system_secret:
@@ -67,7 +74,8 @@ class UlaiClient:
         self.agent = AgentService(
             agent_url=self.agent_url,
             control_plane_url=self.control_plane_url,
-            api_key=self.api_key
+            agent_api_key=self.agent_api_key,
+            control_plane_api_key=self.api_key
         )
         
         return self

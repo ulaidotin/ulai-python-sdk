@@ -1,3 +1,4 @@
+import asyncio
 import json
 import urllib.parse
 from dataclasses import dataclass
@@ -25,7 +26,9 @@ class AgentService:
         self,
         agent_url: str,
         control_plane_url: Optional[str] = None,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None,
+        agent_api_key: Optional[str] = None,
+        control_plane_api_key: Optional[str] = None,
     ):
         """
         Initializes the AgentService using the agent orchestrator gRPC address.
@@ -33,6 +36,8 @@ class AgentService:
         self.agent_url = agent_url
         self.control_plane_url = control_plane_url or ""
         self.api_key = api_key
+        self.agent_api_key = agent_api_key or api_key
+        self.control_plane_api_key = control_plane_api_key or api_key
         
         raw_url = agent_url.strip()
         is_http = raw_url.startswith("http://")
@@ -62,8 +67,9 @@ class AgentService:
 
     def _get_metadata(self):
         metadata = ()
-        if self.api_key:
-            metadata = (("x-api-key", self.api_key),)
+        key = self.agent_api_key or self.api_key
+        if key:
+            metadata = (("x-api-key", key),)
         return metadata
 
     @staticmethod
@@ -104,7 +110,7 @@ class AgentService:
             agent_id=agent_id,
             participant_id=participant_id,
             control_plane_url=self.control_plane_url,
-            control_plane_api_key=self.api_key or "",
+            control_plane_api_key=self.control_plane_api_key or self.api_key or "",
         )
         
         if custom_fields:
@@ -241,6 +247,31 @@ class AgentService:
         Runs a bidirectional session stream. Pass an async generator yielding ClientEvent objects.
         """
         return self.session_stub.Run(request_iterator, metadata=self._get_metadata())
+
+    async def attach(self, session_id: str, replay_history: bool = True):
+        """
+        Attaches to an existing room bridge session and yields ServerEvents.
+        Mirrors ulaisdk.Attach(bridgeID, WithHistory()).
+        """
+        queue: asyncio.Queue = asyncio.Queue()
+
+        async def request_generator():
+            init_ev = agent_session_pb2.ClientEvent(
+                attach=agent_session_pb2.Attach(
+                    session_id=session_id,
+                    replay_history=replay_history
+                )
+            )
+            yield init_ev
+            while True:
+                next_ev = await queue.get()
+                if next_ev is None:
+                    break
+                yield next_ev
+
+        call = self.session_stub.Run(request_generator(), metadata=self._get_metadata())
+        async for server_event in call:
+            yield server_event
 
     async def close(self):
         await self.channel.close()
