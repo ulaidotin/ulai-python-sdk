@@ -16,8 +16,8 @@ from .models.sessions import (
     JoinInfo as JoinInfo,
     NodeInfo as NodeInfo,
 )
-from .services.agent import AgentService as AgentService, Seat as Seat
-from .proto import agent_session_pb2 as agent_session_pb2, agent_session_pb2_grpc as agent_session_pb2_grpc
+
+# Agents live in their own SDK, ulai-agents (https://github.com/ulaidotin/agent-sdk-python).
 
 __all__ = [
     "UlaiClient",
@@ -32,8 +32,4 @@ __all__ = [
     "Session",
     "JoinInfo",
     "NodeInfo",
-    "AgentService",
-    "Seat",
-    "agent_session_pb2",
-    "agent_session_pb2_grpc",
 ]

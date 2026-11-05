@@ -11,27 +11,12 @@ class UlaiClient:
         self,
         backend_url: Optional[str] = None,
         control_plane_url: Optional[str] = None,
-        agent_url: Optional[str] = None,
         api_key: Optional[str] = None,
-        agent_api_key: Optional[str] = None,
         system_secret: Optional[str] = None
     ):
         self.backend_url = (backend_url or os.getenv("ULAI_API_URL", "https://backend.ulai.co.in")).rstrip("/")
         self.control_plane_url = (control_plane_url or os.getenv("ULAI_CP_URL", "https://cp.ulai.co.in")).rstrip("/")
-        self.agent_url = (
-            agent_url
-            or os.getenv("ULAI_AGENT_URL")
-            or os.getenv("ULAI_CLOUD_AGENT_URL")
-            or os.getenv("ULAI_AGENT_ADDR")
-            or "https://stgags.ulai.co"
-        ).rstrip("/")
         self.api_key = api_key or os.getenv("ULAI_API_KEY")
-        self.agent_api_key = (
-            agent_api_key
-            or os.getenv("ULAI_CLOUD_AGENT_API_KEY")
-            or os.getenv("ULAI_AGENT_API_KEY")
-            or self.api_key
-        )
         self.system_secret = system_secret or os.getenv("ULAI_SYSTEM_SECRET")
         
         if not self.api_key and not self.system_secret:
@@ -54,7 +39,6 @@ class UlaiClient:
             headers=headers
         )
         self.project_id: Optional[str] = None
-        self.agent: Optional[Any] = None
 
     async def __aenter__(self):
         """Async initialization: Auto-discover the project_id."""
@@ -68,22 +52,11 @@ class UlaiClient:
         self.sip = SIPService(self._backend_client, self.project_id)
         self.dispatch = DispatchService(self._backend_client, self.project_id)
         self.sessions = SessionService(self._cp_client)
-        
-        # Instantiate Agent gRPC service with agent orchestrator URL and CP URL
-        from .services.agent import AgentService
-        self.agent = AgentService(
-            agent_url=self.agent_url,
-            control_plane_url=self.control_plane_url,
-            agent_api_key=self.agent_api_key,
-            control_plane_api_key=self.api_key
-        )
-        
+
         return self
 
     async def aclose(self) -> None:
-        """Close underlying HTTP and gRPC clients."""
-        if hasattr(self, "agent") and self.agent:
-            await self.agent.close()
+        """Close underlying HTTP clients."""
         await self._backend_client.aclose()
         await self._cp_client.aclose()
 
