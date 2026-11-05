@@ -2,7 +2,7 @@ import os
 import httpx
 from typing import Optional, Any
 
-from .services.sip import SIPService
+from .services.sip import DEFAULT_SIP_ORIGINATE_URL, SIPService
 from .services.dispatch import DispatchService
 from .services.sessions import SessionService
 
@@ -12,10 +12,15 @@ class UlaiClient:
         backend_url: Optional[str] = None,
         control_plane_url: Optional[str] = None,
         api_key: Optional[str] = None,
-        system_secret: Optional[str] = None
+        system_secret: Optional[str] = None,
+        sip_originate_url: Optional[str] = None,
     ):
         self.backend_url = (backend_url or os.getenv("ULAI_API_URL", "https://backend.ulai.co.in")).rstrip("/")
         self.control_plane_url = (control_plane_url or os.getenv("ULAI_CP_URL", "https://cp.ulai.co.in")).rstrip("/")
+        # Where sip.originate_call places outbound calls: the SIP module's full /sip/originate URL.
+        self.sip_originate_url = (
+            sip_originate_url or os.getenv("ULAI_SIP_ORIGINATE_URL") or DEFAULT_SIP_ORIGINATE_URL
+        )
         self.api_key = api_key or os.getenv("ULAI_API_KEY")
         self.system_secret = system_secret or os.getenv("ULAI_SYSTEM_SECRET")
         
@@ -49,7 +54,7 @@ class UlaiClient:
         self.project_id = resp.json()["project_id"]
         
         # 2. Inject the respective clients and project_id into the service namespaces
-        self.sip = SIPService(self._backend_client, self.project_id)
+        self.sip = SIPService(self._backend_client, self.project_id, originate_url=self.sip_originate_url)
         self.dispatch = DispatchService(self._backend_client, self.project_id)
         self.sessions = SessionService(self._cp_client)
 

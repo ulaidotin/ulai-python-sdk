@@ -10,14 +10,22 @@ from ..models.sip import (
     SIPTransport,
 )
 
+# The SIP module's originate endpoint, unless UlaiClient is given another.
+DEFAULT_SIP_ORIGINATE_URL = "http://148.113.59.189:8082/sip/originate"
 
 
 class SIPService:
     """Manages Inbound and Outbound SIP Trunks against Ulai Cloud Backend."""
 
-    def __init__(self, client: httpx.AsyncClient, project_id: str):
+    def __init__(
+        self,
+        client: httpx.AsyncClient,
+        project_id: str,
+        originate_url: str = DEFAULT_SIP_ORIGINATE_URL,
+    ):
         self._client = client
         self._project_id = project_id
+        self._originate_url = originate_url
 
     # ── Inbound Trunks ────────────────────────────────────────────────────────
 
@@ -199,7 +207,7 @@ class SIPService:
 
         # Using the absolute URL bypasses the client's default base_url
         resp = await self._client.post(
-            "http://148.113.59.189:8082/sip/originate",
+            self._originate_url,
             json=payload,
         )
         resp.raise_for_status()    
