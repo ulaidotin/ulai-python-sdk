@@ -4,6 +4,7 @@ from .sip import (
     SIPTransport,
     CreateInboundTrunkRequest,
     CreateOutboundTrunkRequest,
+    OriginateCallRequest
 )
 from .dispatch import (
     DispatcherRule,
@@ -28,4 +29,5 @@ __all__ = [
     "Session",
     "JoinInfo",
     "NodeInfo",
+    "OriginateCallRequest"
 ]
