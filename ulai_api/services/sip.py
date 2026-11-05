@@ -12,6 +12,9 @@ from ..models.sip import (
 
 # The SIP module's originate endpoint, unless UlaiClient is given another.
 DEFAULT_SIP_ORIGINATE_URL = "http://148.113.59.189:8082/sip/originate"
+# Seconds to wait for the SIP module to accept a call. Longer than httpx's 5 s default: giving up
+# early would report a failed dial for a call that may already be ringing.
+ORIGINATE_TIMEOUT = 15.0
 
 
 class SIPService:
@@ -209,5 +212,6 @@ class SIPService:
         resp = await self._client.post(
             self._originate_url,
             json=payload,
+            timeout=ORIGINATE_TIMEOUT,
         )
         resp.raise_for_status()    
